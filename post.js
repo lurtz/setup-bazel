@@ -87,20 +87,6 @@ async function saveCache(cacheConfig) {
     if (cacheConfig.optimized) {
       // Use timestamp for unique key
       key = `${restoreKey}${Date.now()}`
-
-      // Delete old caches before saving
-      const token = core.getState('token')
-      if (token) {
-        core.info(`Deleting old caches matching prefix: ${restoreKey}`)
-        try {
-          const deleted = await deleteOldCaches(token, restoreKey)
-          core.info(`Deleted ${deleted} old cache(s)`)
-        } catch (err) {
-          core.warning(`Failed to delete old caches: ${err.message}`)
-        }
-      } else {
-        core.warning('No token available for cache cleanup')
-      }
     } else {
       const hash = await glob.hashFiles(
         cacheConfig.files.join('\n'),
