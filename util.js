@@ -48,10 +48,4 @@ function lstatSync(path, opts) {
   }
 }
 
-function getRepo() {
-  const repository = process.env.GITHUB_REPOSITORY || ''
-  const [owner, repo] = repository.split('/')
-  return { owner, repo }
-}
-
 export { getFolderSize }

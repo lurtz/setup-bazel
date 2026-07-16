@@ -103961,8 +103961,7 @@ if (externalCacheConfig) {
 const token = getInput('token')
 exportVariable('BAZELISK_GITHUB_TOKEN', token)
 
-// Save token and optimized flag for post step
-saveState('token', token)
+// Save optimized flag for post step
 saveState('cache-optimized', cacheOptimized.toString())
 
 /* harmony default export */ const config = ({
@@ -104056,12 +104055,6 @@ function lstatSync(path, opts) {
   } catch (error) {
     return
   }
-}
-
-function getRepo() {
-  const repository = process.env.GITHUB_REPOSITORY || ''
-  const [owner, repo] = repository.split('/')
-  return { owner, repo }
 }
 
 
