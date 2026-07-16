@@ -4,7 +4,7 @@ import * as cache from '@actions/cache'
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import config from './config.js'
-import { getFolderSize, deleteOldCaches } from './util.js'
+import { getFolderSize } from './util.js'
 
 async function run() {
   await saveCaches()
@@ -87,20 +87,6 @@ async function saveCache(cacheConfig) {
     if (cacheConfig.optimized) {
       // Use timestamp for unique key
       key = `${restoreKey}${Date.now()}`
-
-      // Delete old caches before saving
-      const token = core.getState('token')
-      if (token) {
-        core.info(`Deleting old caches matching prefix: ${restoreKey}`)
-        try {
-          const deleted = await deleteOldCaches(token, restoreKey)
-          core.info(`Deleted ${deleted} old cache(s)`)
-        } catch (err) {
-          core.warning(`Failed to delete old caches: ${err.message}`)
-        }
-      } else {
-        core.warning('No token available for cache cleanup')
-      }
     } else {
       const hash = await glob.hashFiles(
         cacheConfig.files.join('\n'),

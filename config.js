@@ -139,8 +139,7 @@ if (externalCacheConfig) {
 const token = core.getInput('token')
 core.exportVariable('BAZELISK_GITHUB_TOKEN', token)
 
-// Save token and optimized flag for post step
-core.saveState('token', token)
+// Save optimized flag for post step
 core.saveState('cache-optimized', cacheOptimized.toString())
 
 export default {
