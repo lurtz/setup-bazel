@@ -4,7 +4,7 @@ import * as cache from '@actions/cache'
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import config from './config.js'
-import { getFolderSize, deleteOldCaches } from './util.js'
+import { getFolderSize } from './util.js'
 
 async function run() {
   await saveCaches()
