@@ -104058,47 +104058,6 @@ function lstatSync(path, opts) {
   }
 }
 
-async function deleteOldCaches(token, prefix) {
-  const { owner, repo } = getRepo()
-  const apiUrl = process.env.GITHUB_API_URL || 'https://api.github.com'
-  const baseUrl = `${apiUrl}/repos/${owner}/${repo}/actions/caches`
-  const headers = {
-    'Accept': 'application/vnd.github+json',
-    'Authorization': `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28'
-  }
-
-  // List caches matching the prefix
-  const listUrl = `${baseUrl}?key=${encodeURIComponent(prefix)}`
-  const response = await fetch(listUrl, { headers })
-
-  if (!response.ok) {
-    throw new Error(`Failed to list caches (${listUrl}): ${response.status} ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  const caches = data.actions_caches || []
-
-  if (caches.length === 0) {
-    return 0
-  }
-
-  // Delete each matching cache
-  let deleted = 0
-  for (const c of caches) {
-    const deleteUrl = `${baseUrl}/${c.id}`
-    const deleteResponse = await fetch(deleteUrl, { method: 'DELETE', headers })
-    if (deleteResponse.ok) {
-      deleted++
-    } else {
-      const body = await deleteResponse.text().catch(() => '')
-      throw new Error(`Failed to delete cache ${c.id} (key: ${c.key}): ${deleteResponse.status} ${deleteResponse.statusText} ${body}`)
-    }
-  }
-
-  return deleted
-}
-
 function getRepo() {
   const repository = process.env.GITHUB_REPOSITORY || ''
   const [owner, repo] = repository.split('/')
@@ -104197,20 +104156,6 @@ async function post_saveCache(cacheConfig) {
     if (cacheConfig.optimized) {
       // Use timestamp for unique key
       key = `${restoreKey}${Date.now()}`
-
-      // Delete old caches before saving
-      const token = getState('token')
-      if (token) {
-        info(`Deleting old caches matching prefix: ${restoreKey}`)
-        try {
-          const deleted = await deleteOldCaches(token, restoreKey)
-          info(`Deleted ${deleted} old cache(s)`)
-        } catch (err) {
-          warning(`Failed to delete old caches: ${err.message}`)
-        }
-      } else {
-        warning('No token available for cache cleanup')
-      }
     } else {
       const hash = await lib_glob_hashFiles(
         cacheConfig.files.join('\n'),
